@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề Ôn Tập Công Nghệ 10 - Nội Dung Mới</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 20px auto; padding: 20px; background-color: #f0f2f5; }
+        .container { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; text-align: center; text-transform: uppercase; margin-bottom: 30px; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; }
+        h2 { color: #d93025; border-left: 5px solid #d93025; padding-left: 10px; margin-top: 30px; }
+        .question-box { margin-bottom: 25px; padding: 20px; border-radius: 10px; background: #ffffff; border: 1px solid #e0e0e0; transition: all 0.3s ease; }
+        .question-box:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .options { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+        .option { padding: 12px 15px; border: 2px solid #f1f3f4; border-radius: 8px; cursor: pointer; background: #f8f9fa; transition: 0.2s; }
+        .option:hover { background: #e8f0fe; border-color: #1a73e8; }
+        .correct { background-color: #e6f4ea !important; border-color: #34a853 !important; color: #137333; font-weight: bold; }
+        .incorrect { background-color: #fce8e6 !important; border-color: #d93025 !important; color: #a50e0e; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background: #e8f0fe; border-radius: 8px; font-size: 0.95em; color: #1967d2; border-left: 4px solid #1a73e8; }
+        
+        /* CSS cho phần Đúng/Sai */
+        .tf-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .tf-text { flex: 1; padding-right: 20px; }
+        .tf-btns { display: flex; gap: 10px; }
+        .tf-btn { padding: 6px 15px; border: 1px solid #dadce0; border-radius: 20px; cursor: pointer; background: white; font-size: 0.9em; }
+        .tf-btn.active-true { background: #34a853; color: white; border-color: #34a853; }
+        .tf-btn.active-false { background: #d93025; color: white; border-color: #d93025; }
+        .check-tf-btn { margin-top: 20px; padding: 10px 25px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .check-tf-btn:hover { background: #1557b0; }
+        .status-icon { margin-left: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ÔN TẬP CÔNG NGHỆ 10 (BIÊN SOẠN MỚI)</h1>
+
+    <div class="section">
+        <h2>PHẦN I: Trắc nghiệm nhiều phương án lựa chọn</h2>
+        <div id="mc-list"></div>
+    </div>
+
+    <div class="section">
+        <h2>PHẦN II: Trắc nghiệm Đúng - Sai</h2>
+        <div id="tf-list"></div>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu câu hỏi đã được biên soạn lại [cite: 3-73, 80-94]
+    const mcQuestions = [
+        { q: "Trình tự các bước thực hiện trong một chu kỳ sản xuất cây trồng phổ biến là:", options: ["Trồng cây, gieo hạt – Chuẩn bị đất và bón lót – Chăm sóc định kỳ – Thu hoạch sản phẩm", "Gieo trồng – Chăm sóc – Cày bừa làm đất – Thu hoạch", "Chuẩn bị đất và bón lót – Thực hiện gieo trồng – Chăm sóc – Thu hoạch", "Làm đất – Bón phân và trồng cây – Chăm sóc – Thu hoạch"], correct: 2, exp: "Quy trình chuẩn kỹ thuật luôn bắt đầu từ khâu chuẩn bị đất và bón lót để tạo nền tảng dinh dưỡng và độ tơi xốp trước khi gieo trồng [cite: 3-7]." },
+        { q: "Công việc nào dưới đây thuộc nhóm các biện pháp kỹ thuật chăm sóc cây trồng?", options: ["Tạo luống sản xuất", "Chuyển cây con ra ruộng", "Thu hái sản phẩm", "Cung cấp nước tưới"], correct: 3, exp: "Tưới nước là hoạt động chăm sóc thường xuyên để đảm bảo độ ẩm cho cây phát triển sau khi đã trồng [cite: 8-9]." },
+        { q: "Việc xử lý đất trước khi gieo trồng có vai trò chủ yếu nào sau đây?", options: ["Gia tăng quy mô canh tác", "Tạo độ thông thoáng, tơi xốp cho đất", "Bổ sung thêm hàm lượng đạm", "Tiết kiệm thời gian sinh trưởng"], correct: 1, exp: "Làm đất giúp đất tơi xốp, tăng cường khả năng giữ nước và không khí, tạo điều kiện cho rễ phát triển [cite: 10-12]." },
+        { q: "Cơ giới hóa là việc ứng dụng các máy móc, thiết bị hiện đại để thay thế cho các công cụ thủ công trong lĩnh vực nào?", options: ["Trồng trọt", "Chế biến thực phẩm", "Khai thác khoáng sản", "Thu hoạch lâm sản"], correct: 0, exp: "Đây là khái niệm về việc áp dụng máy móc vào các khâu trong quy trình sản xuất trồng trọt [cite: 13-15]." },
+        { q: "Đâu không phải là mục tiêu cốt lõi của việc đưa máy móc vào sản xuất trồng trọt?", options: ["Giảm bớt sự lệ thuộc vào các công cụ thô sơ", "Giảm nhẹ cường độ lao động của con người", "Thay thế sức kéo từ động vật (trâu, bò)", "Loại bỏ hoàn toàn vai trò của con người trong sản xuất"], correct: 3, exp: "Máy móc chỉ hỗ trợ và thay thế sức lao động nặng nhọc, con người vẫn đóng vai trò điều khiển và quản lý [cite: 16-18]." },
+        { q: "Trong các thiết bị sau, thiết bị nào không đảm nhận chức năng gieo hoặc trồng cây?", options: ["Máy cấy mạ khay", "Thiết bị gieo hạt vận hành tự động", "Máy sạ lúa theo hàng", "Máy cày, bừa làm đất"], correct: 3, exp: "Máy cày, bừa là thiết bị phục vụ khâu làm đất, không phải khâu gieo trồng [cite: 19-20]." },
+        { q: "Có bao nhiêu công nghệ sau đây được phân loại là công nghệ cao trong khâu bảo quản nông sản: (1) Đông lạnh sống tế bào; (2) Bảo quản lạnh; (3) Sấy thăng hoa; (4) Tự động hóa; (5) Bảo quản trong khí quyển biến đổi?", options: ["2", "3", "4", "5"], correct: 1, exp: "Có 3 công nghệ bảo quản chính được nhắc đến: Công nghệ lạnh, Sấy thăng hoa và Khí quyển biến đổi [cite: 21-25]." },
+        { q: "Lợi ích nổi bật của việc bảo quản sản phẩm trong môi trường khí quyển biến đổi (MAP) là gì?", options: ["Giảm cường độ hô hấp của nông sản, kéo dài thời gian tươi ngon", "Tác động làm biến đổi hương vị đặc trưng của sản phẩm", "Làm thay đổi diện mạo bên ngoài và mùi đặc trưng", "Kích thích quá trình chín nhanh hơn để tiêu thụ"], correct: 0, exp: "MAP giúp hạn chế hô hấp và các phản ứng trao đổi chất để duy trì chất lượng nông sản [cite: 26-28]." },
+        { q: "Khi sử dụng công nghệ khí quyển điều chỉnh (CA), người ta thường can thiệp vào nồng độ khí như thế nào?", options: ["Chủ động nâng cao tỷ lệ CO2 và hạ thấp tỷ lệ O2", "Tăng thêm khí O2 và triệt tiêu khí CO2", "Giữ nguyên các thành phần khí như môi trường tự nhiên", "Điều chỉnh sao cho lượng CO2 luôn bằng lượng O2"], correct: 0, exp: "Việc tăng CO2 và giảm O2 giúp ức chế quá trình hô hấp của tế bào nông sản [cite: 29-33]." },
+        { q: "Một bản kế hoạch trồng trọt hoàn chỉnh cần thể hiện rõ bao nhiêu nhóm thông tin cơ bản?", options: ["6", "7", "8", "9"], correct: 2, exp: "Quy trình lập kế hoạch trồng trọt chuẩn bao gồm 8 nhóm thông tin quan trọng [cite: 34-35]." },
+        { q: "Nội dung trọng tâm cần xác định đầu tiên khi bắt đầu lập kế hoạch trồng trọt là:", options: ["Vị trí, quy mô diện tích và sơ đồ bố trí khu vực sản xuất", "Lịch trình xuống giống và dự kiến ngày thu hoạch", "Lựa chọn bộ giống và các loại vật tư đầu vào", "Chuẩn bị hệ thống máy móc và công cụ hỗ trợ"], correct: 0, exp: "Địa điểm và diện tích là yếu tố tiên quyết để triển khai các bước tiếp theo [cite: 36-37]." },
+        { q: "Khái niệm chính xác về nông nghiệp công nghệ cao là gì?", options: ["Là sự kết hợp giữa các kỹ thuật truyền thống lỗi thời với máy móc mới", "Phương thức sản xuất không cần áp dụng các tiến bộ kỹ thuật hiện đại", "Phương thức canh tác dựa trên việc tích hợp các thành tựu khoa học và công nghệ hiện đại", "Mô hình sản xuất chủ yếu dựa trên kinh nghiệm và sức lực của con người"], correct: 2, exp: "Nông nghiệp công nghệ cao ứng dụng tích hợp các công nghệ hiện đại nhất vào sản xuất [cite: 41-44]." },
+        { q: "Một trong những đặc trưng điển hình của nông nghiệp công nghệ cao là:", options: ["Tập trung sử dụng nhiều lao động chân tay", "Áp dụng máy móc vào hầu hết các khâu của quy trình sản xuất", "Năng suất biến động thất thường tùy theo thời tiết", "Vốn đầu tư ban đầu rất thấp nhưng thu lợi lớn"], correct: 1, exp: "Cơ giới hóa và tự động hóa là đặc điểm nhận diện chính của mô hình này [cite: 46-47]." },
+        { q: "So với mô hình truyền thống, nông nghiệp công nghệ cao mang lại lợi thế nào?", options: ["Tối ưu hóa chi phí đầu tư và giải phóng sức lao động", "Sản lượng thấp hơn nhưng giá bán ra thị trường lại cao", "Đòi hỏi lượng lớn nhân công trực tiếp tại hiện trường", "Mang lại giá trị lợi nhuận và hiệu quả kinh tế thấp"], correct: 0, exp: "Công nghệ cao giúp giảm sức người và tăng hiệu quả kinh tế đáng kể [cite: 49-50]." },
+        { q: "Để rút ngắn chu kỳ thu hoạch xà lách thủy canh NFT xuống 10 ngày, người ta sử dụng hệ thống:", options: ["Phản xạ ánh sáng từ môi trường tự nhiên", "Đèn Led tỏa ánh sáng vàng ấm", "Hệ thống đèn Led cung cấp ánh sáng đơn sắc", "Tận dụng cả nguồn sáng từ mặt trời và mặt trăng"], correct: 2, exp: "Đèn Led đơn sắc cung cấp bước sóng tối ưu giúp cây tăng trưởng nhanh hơn [cite: 52-53]." },
+        { q: "Phát biểu nào dưới đây mô tả đúng về kỹ thuật canh tác không dùng đất?", options: ["Là phương pháp nuôi trồng cây trong dung dịch dinh dưỡng hoặc trên các loại giá thể thay thế đất tự nhiên", "Là hình thức trồng cây kết hợp giữa dung dịch hóa học và đất vườn", "Là kỹ thuật chỉ sử dụng duy nhất một loại phân bón trong nước", "Là quy trình gieo hạt trực tiếp vào môi trường nước tinh khiết"], correct: 0, exp: "Cây được trồng trên giá thể hoặc trực tiếp trong nước chứa dinh dưỡng [cite: 55-56]." },
+        { q: "Trong mô hình thủy canh, giá thể đóng vai trò là:", options: ["Nguồn cung cấp nước chính cho toàn bộ cây", "Lớp bao phủ bằng vải để bảo vệ thân cây", "Môi trường hỗ trợ, tạo không gian cho bộ rễ phát triển", "Các vật dụng dùng để che chắn ánh sáng cho cây"], correct: 2, exp: "Giá thể giúp rễ cây bám vững và tạo độ thoáng khí trong môi trường thủy canh [cite: 60-63]." },
+        { q: "Nguyên liệu nào sau đây không được dùng làm giá thể trong các hệ thống trồng cây không dùng đất?", options: ["Xốp chuyên dụng", "Mụn xơ dừa đã xử lý", "Vỏ trấu hun", "Đất lấy từ vườn nhà"], correct: 3, exp: "Đất vườn là môi trường đất tự nhiên, không phải giá thể nhân tạo/xử lý của thủy canh [cite: 64-65]." },
+        { q: "Phương án nào dưới đây không phải là một hình thức của hệ thống canh tác không dùng đất?", options: ["Tưới nhỏ giọt trên nền giá thể", "Mô hình thủy canh tĩnh", "Sử dụng ánh sáng nhân tạo để kích thích cây ra hoa sớm", "Hệ thống thủy canh theo nguyên lý thủy triều"], correct: 2, exp: "Sử dụng đèn là công nghệ chiếu sáng, không phải là một hệ thống trồng cây không dùng đất [cite: 66-68]." },
+        { q: "Kỹ thuật thủy canh màng mỏng dinh dưỡng (NFT) thường mang lại hiệu quả cao nhất cho:", options: ["Các cây lấy quả lớn hoặc cây cảnh lâu năm trong chậu", "Những cây có kích thước thân lá rất nhỏ", "Cây ngắn ngày như rau ăn lá, dâu tây hoặc các loại hoa thời vụ", "Cây trồng trang trí trong nhà có kích thước nhỏ"], correct: 2, exp: "NFT đặc biệt phù hợp cho các loại rau ăn lá có thời gian sinh trưởng ngắn [cite: 69-72]." }
+    ];
+
+    const tfQuestions = [
+        {
+            title: "Câu 1. Đánh giá các nhận định về việc ứng dụng công nghệ hiện đại trong sản xuất nông nghiệp:",
+            items: [
+                { text: "a) Việc tích hợp AI, cảm biến và tự động hóa giúp chế tạo robot có khả năng nhận diện độ chín để thu hoạch chính xác.", correct: true },
+                { text: "b) Nhờ sự hỗ trợ của công nghệ cao, công tác thu hoạch diễn ra nhanh hơn, chính xác hơn và tối ưu hóa nhân lực.", correct: true },
+                { text: "c) Phương pháp bảo quản bằng khí quyển điều chỉnh (CA) có tác dụng đẩy nhanh quá trình hô hấp của sản phẩm.", correct: false },
+                { text: "d) Công nghệ chiếu xạ bảo quản sử dụng tia phóng xạ để tiêu diệt tất cả các loại vi sinh vật nằm sâu bên trong sản phẩm.", correct: false }
+            ],
+            exp: "Ý (c) sai vì CA làm giảm hô hấp để bảo quản tươi lâu hơn. Ý (d) sai vì chiếu xạ chỉ tiêu diệt hầu hết vi khuẩn và ký sinh bên ngoài sản phẩm [cite: 76-84]."
+        },
+        {
+            title: "Câu 2. Cô Lan muốn triển khai mô hình trồng rau sạch tại ban công tầng 3 theo hướng thủy canh:",
+            items: [
+                { text: "a) Thủy canh là hình thức nuôi trồng cây trong hệ thống chứa dịch dinh dưỡng, hoàn toàn không cần đến đất.", correct: true },
+                { text: "b) Kỹ thuật thủy canh có thể đáp ứng tốt cho mọi loại cây từ rau ăn lá, rau gia vị đến các loại cây lấy củ quy mô lớn.", correct: false },
+                { text: "c) Với không gian ban công hộ gia đình, cô Lan chọn thủy canh tĩnh là hợp lý vì cấu tạo đơn giản và chi phí thấp.", correct: true },
+                { text: "d) Dù trồng thủy canh nhưng cô Lan vẫn cần duy trì việc bón phân hạt và phun thuốc bảo vệ thực vật như trồng đất.", correct: false }
+            ],
+            exp: "Ý (b) sai vì thủy canh chủ yếu hợp cho rau lá/cây nhỏ. Ý (d) sai vì dinh dưỡng đã có sẵn trong nước, không cần bón phân hạt như trồng đất truyền thống [cite: 86-94]."
+        }
+    ];
+
+    // Render Phần I
+    const mcList = document.getElementById('mc-list');
+    mcQuestions.forEach((item, index) => {
+        const box = document.createElement('div');
+        box.className = 'question-box';
+        box.innerHTML = `<div><strong>Câu ${index + 1}:</strong> ${item.q}</div>`;
+        
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+        
+        item.options.forEach((opt, oIdx) => {
+            const optBtn = document.createElement('div');
+            optBtn.className = 'option';
+            optBtn.innerText = opt;
+            optBtn.onclick = function() {
+                const siblings = optionsDiv.querySelectorAll('.option');
+                siblings.forEach(s => s.style.pointerEvents = 'none');
+                
+                if (oIdx === item.correct) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('incorrect');
+                    siblings[item.correct].classList.add('correct');
+                }
+                box.querySelector('.explanation').style.display = 'block';
+            };
+            optionsDiv.appendChild(optBtn);
+        });
+        
+        const expDiv = document.createElement('div');
+        expDiv.className = 'explanation';
+        expDiv.innerHTML = `<strong>Giải thích chi tiết:</strong> ${item.exp}`;
+        
+        box.appendChild(optionsDiv);
+        box.appendChild(expDiv);
+        mcList.appendChild(box);
+    });
+
+    // Render Phần II
+    const tfList = document.getElementById('tf-list');
+    tfQuestions.forEach((qObj, qIdx) => {
+        const box = document.createElement('div');
+        box.className = 'question-box';
+        box.innerHTML = `<div><strong>${qObj.title}</strong></div>`;
+        
+        qObj.items.forEach((item, iIdx) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'tf-item';
+            itemDiv.innerHTML = `
+                <div class="tf-text">${item.text}</div>
+                <div class="tf-btns" data-correct="${item.correct}">
+                    <button class="tf-btn" onclick="selectTF(this, true)">Đúng</button>
+                    <button class="tf-btn" onclick="selectTF(this, false)">Sai</button>
+                    <span class="status-icon"></span>
+                </div>
+            `;
+            box.appendChild(itemDiv);
+        });
+        
+        const checkBtn = document.createElement('button');
+        checkBtn.className = 'check-tf-btn';
+        checkBtn.innerText = 'Kiểm tra câu hỏi này';
+        checkBtn.onclick = function() {
+            const rows = box.querySelectorAll('.tf-btns');
+            rows.forEach(row => {
+                const correct = row.getAttribute('data-correct') === 'true';
+                const selected = row.querySelector('.active-true') ? true : (row.querySelector('.active-false') ? false : null);
+                const icon = row.querySelector('.status-icon');
+                
+                if (selected === correct) {
+                    icon.innerHTML = '✅'; icon.style.color = 'green';
+                } else {
+                    icon.innerHTML = '❌ (Đáp án: ' + (correct ? 'Đúng' : 'Sai') + ')';
+                    icon.style.color = 'red';
+                }
+            });
+            box.querySelector('.explanation').style.display = 'block';
+            this.disabled = true;
+        };
+        
+        const expDiv = document.createElement('div');
+        expDiv.className = 'explanation';
+        expDiv.innerHTML = `<strong>Giải thích chi tiết:</strong> ${qObj.exp}`;
+        
+        box.appendChild(checkBtn);
+        box.appendChild(expDiv);
+        tfList.appendChild(box);
+    });
+
+    function selectTF(btn, val) {
+        const parent = btn.parentElement;
+        parent.querySelectorAll('.tf-btn').forEach(b => {
+            b.classList.remove('active-true', 'active-false');
+        });
+        btn.classList.add(val ? 'active-true' : 'active-false');
+    }
+</script>
+
+</body>
+</html>
